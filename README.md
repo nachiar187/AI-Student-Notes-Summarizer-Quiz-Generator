@@ -18,7 +18,7 @@ An AI-powered, single-page web application designed for students to instantly pa
 
 - **Frontend:** HTML5, Tailwind CSS
 - **Logic & Scripting:** JavaScript (ES6+)
-- **AI Integration:** Google Gemini API (`gemini-3.6-flash`)
+- **AI Integration:** Google Gemini API (`gemini-3-flash`)
 - **Storage:** Browser `localStorage`
 
 ---
