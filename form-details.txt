@@ -10,13 +10,13 @@ Project Statement:
    Students often face information overload with massive syllabi and lengthy notes, making rapid revision difficult during exams. Traditional note-taking and manual flashcard creation are time-consuming, leading to inefficient learning.
 
 Your Solution:
-   Our solution leverages Gemini AI to parse long paragraphs and extract core key concepts in under 3 seconds. It formats the summary into easy-to-read bullet points and dynamically generates a 4-question multiple-choice quiz so students can immediately test their understanding.
+   Our solution leverages Gemini AI to parse study notes and extract core key concepts into easy-to-read bullet points. It also dynamically generates a 4-question multiple-choice quiz so students can immediately test their understanding.
 
 Uniqueness & Innovation:
-   Unlike basic summarizers, this tool combines instant summarization with automated quiz generation in a clean, distraction-free, single-page interface. It requires zero setup and works directly in the browser with high speed and zero clutter.
+   Unlike basic summarizers, this tool combines AI-powered summarization with automated 4-question quiz generation in a simple single-page browser interface. It also includes a mock mode for testing the workflow without an API key.
 
 Technology Stack:
-   HTML5, Tailwind CSS, JavaScript (ES6+), Google Gemini API
+   HTML5, Tailwind CSS, JavaScript (ES6+), Google Gemini API, localStorage, VS Code, Git & GitHub
 
 GitHub/Source Code Link:
    https://github.com/nachiar187/AI-Student-Notes-Summarizer-Quiz-Generator
