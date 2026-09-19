@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Student Notes Summarizer & Quiz Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
+
+    <!-- Header Navbar -->
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 gradient-bg rounded-xl text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg sm:text-xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+                        StudyGenius AI
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Notes Summarizer & Interactive Quiz Creator</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <!-- Theme Toggle Button -->
+                <button id="themeToggleBtn" onclick="toggleDarkMode()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all flex items-center gap-2 text-sm font-medium">
+                    <i id="themeIcon" class="fa-solid fa-moon text-indigo-500"></i>
+                    <span id="themeText" class="hidden md:inline">Dark</span>
+                </button>
+                <a href="#apiKeySection" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1.5 hover:bg-indigo-100 transition-colors">
+                    <i class="fa-solid fa-key text-xs"></i>
+                    <span id="apiKeyBadge">Mock Mode</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- API Key & Status Banner -->
+        <section id="apiKeySection" class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm transition-all">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="p-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 mt-0.5">
+                        <i class="fa-solid fa-shield-halved text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                            Google Gemini API Key
+                            <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">Optional</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            Add key for real-time AI summaries & custom quizzes, or leave blank to test using intelligent mock mode.
+                            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium inline-flex items-center gap-1">
+                                Get free Gemini key <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- API Key Input Field -->
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <div class="relative flex-grow md:w-72">
+                        <input type="password" id="apiKeyInput" placeholder="Paste Gemini API Key (AIzaSy...)" class="w-full px-3 py-2 pr-10 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                        <button onclick="toggleApiKeyVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1" title="Toggle visibility">
+                            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                    <button onclick="saveApiKey()" class="px-4 py-2 bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-floppy-disk text-xs"></i> Save
+                    </button>
+                </div>
+            </div>
+            <!-- Notification banner for saved state -->
+            <div id="apiStatusMessage" class="hidden mt-3 text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"></div>
+        </section>
+
+        <!-- Input Section -->
+        <section class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 shadow-md transition-all">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-indigo-500"></i> Study Notes & Lecture Content
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Paste your class notes, textbook chapters, or lecture transcript below.</p>
+                </div>
+                
+                <button onclick="loadSampleNotes()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 border border-indigo-200 dark:border-indigo-800/60 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 self-start sm:self-auto">
+                    <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i> Load Sample Notes
+                </button>
+            </div>
+
+            <!-- Textarea for notes -->
+            <div class="relative">
+                <textarea id="notesInput" rows="9" placeholder="Paste your study materials here (minimum 50 words recommended)..." class="w-full p-4 text-sm sm:text-base rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 custom-scrollbar transition-all leading-relaxed"></textarea>
+                
+                <div class="absolute bottom-3 right-3 text-xs text-slate-400 dark:text-slate-500 pointer-events-none bg-white/80 dark:bg-slate-900/80 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                    <span id="charCount">0</span> characters | <span id="wordCount">0</span> words
+                </div>
+            </div>
+
+            <!-- Action Button Container -->
+            <div class="mt-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <i class="fa-solid fa-circle-info text-indigo-500"></i>
+                    <span>Output will include key takeaway points and a dynamic 4-question quiz.</span>
+                </div>
+
+                <button id="generateBtn" onclick="processNotes()" class="w-full sm:w-auto px-8 py-3.5 gradient-bg hover:opacity-95 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 text-base">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Summarize & Generate Quiz</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading State Indicator -->
+        <div id="loadingIndicator" class="hidden bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200/80 dark:border-slate-700/80 shadow-md text-center">
+            <div class="inline-flex items-center justify-center p-4 bg-indigo-50 dark:bg-indigo-950/80 rounded-full text-indigo-600 dark:text-indigo-400 mb-4 animate-bounce">
+                <i class="fa-solid fa-brain text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Synthesizing Notes & Crafting Quiz...</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4" id="loadingSubtext">Extracting core concepts, defining key terms, and structuring practice questions.</p>
+            <div class="w-full max-w-xs mx-auto bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                <div class="bg-indigo-600 h-full rounded-full animate-pulse w-3/4"></div>
+            </div>
+        </div>
+
+        <!-- Output Section Container -->
+        <div id="outputSection" class="hidden space-y-8">
+
+            <!-- Summary Output Card -->
+            <section class="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/80 shadow-md transition-all">
+                <div class="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                            <i class="fa-solid fa-list-check text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Key Summary Points</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Structured essential takeaways from your study notes</p>
+                        </div>
+                    </div>
+
+                    <button onclick="copySummaryText()" id="copySummaryBtn" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all flex items-center gap-2">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Copy Summary</span>
+                    </button>
+                </div>
+
+                <!-- Structured Bullet Points Box -->
+                <div id="summaryContent" class="space-y-4 text-slate-700 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </section>
+
+            <!-- Quick Quiz Section -->
+            <section class="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/80 shadow-md transition-all">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400">
+                            <i class="fa-solid fa-circle-question text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Quick Quiz</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Test your comprehension with immediate feedback</p>
+                        </div>
+                    </div>
+
+                    <!-- Score Header Badge -->
+                    <div id="scoreBadge" class="hidden px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-500"></i>
+                        <span>Score: <span id="scoreText">0 / 0</span></span>
+                    </div>
+                </div>
+
+                <!-- Questions Container -->
+                <div id="quizContainer" class="space-y-6">
+                    <!-- Questions will be injected dynamically -->
+                </div>
+
+                <!-- Quiz Submission & Reset controls -->
+                <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500 dark:text-slate-400">
+                        <span id="answersSubmittedCount">0</span> of <span id="totalQuestionsCount">0</span> answered
+                    </div>
+                    
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <button onclick="resetQuiz()" class="w-1/2 sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm transition-all">
+                            Reset Quiz
+                        </button>
+                        <button id="submitQuizBtn" onclick="gradeQuiz()" class="w-1/2 sm:w-auto px-6 py-2.5 gradient-bg hover:opacity-90 text-white font-semibold rounded-xl text-sm shadow-md transition-all">
+                            Submit Answers
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 z-50 text-sm font-medium">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600"></i>
+        <span id="toastMsg">Action completed</span>
+    </div>
+
+    <!-- Simple Footer -->
+    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p>AI Student Notes Summarizer & Quiz Generator &bull; Powered by Google Gemini API</p>
+    </footer>
+
+    <script>
+        // --- State Management ---
+        let currentQuizData = [];
+        let userSelectedAnswers = {};
+
+        // --- Sample Text Content ---
+        const sampleNotesText = `Photosynthesis is a chemical process through which plants, algae, and certain bacteria convert light energy into chemical energy stored in glucose.
+
+Key Stages of Photosynthesis:
+1. Light-Dependent Reactions: Occur within the thylakoid membranes of chloroplasts. Chlorophyll absorbs sunlight and splits water molecules (H2O), producing oxygen (O2) as a byproduct along with energy-rich ATP and NADPH.
+2. Light-Independent Reactions (Calvin Cycle): Takes place in the stroma of chloroplasts. ATP and NADPH produced in the first stage are utilized to convert carbon dioxide (CO2) from the air into glucose (C6H12O6).
+
+Primary Equation:
+6 CO2 + 6 H2O + Light Energy -> C6H12O6 + 6 O2
+
+Importance:
+Photosynthesis is vital for life on Earth as it provides primary food sources for almost all organisms and generates the oxygen required for aerobic respiration. Factors affecting the rate of photosynthesis include light intensity, carbon dioxide concentration, temperature, and availability of water.`;
+
+        // --- Initial Load Setup ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedApiKey();
+            setupTextareaCounters();
+            initTheme();
+        });
+
+        // --- Theme Management ---
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                updateThemeUI(true);
+            } else {
+                document.documentElement.classList.remove('dark');
+                updateThemeUI(false);
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            updateThemeUI(isDark);
+        }
+
+        function updateThemeUI(isDark) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            if (isDark) {
+                icon.className = 'fa-solid fa-sun text-amber-400';
+                text.textContent = 'Light';
+            } else {
+                icon.className = 'fa-solid fa-moon text-indigo-500';
+                text.textContent = 'Dark';
+            }
+        }
+
+        // --- API Key LocalStorage & UI Management ---
+        function loadSavedApiKey() {
+            const savedKey = localStorage.getItem('gemini_api_key') || '';
+            const input = document.getElementById('apiKeyInput');
+            input.value = savedKey;
+            updateApiKeyBadge(savedKey);
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+                showStatusMessage('API Key saved securely in browser!', 'success');
+            } else {
+                localStorage.removeItem('gemini_api_key');
+                showStatusMessage('Key removed. App will run in Mock Mode.', 'info');
+            }
+            updateApiKeyBadge(key);
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('apiKeyInput');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function updateApiKeyBadge(key) {
+            const badge = document.getElementById('apiKeyBadge');
+            if (key && key.length > 5) {
+                badge.textContent = 'Gemini API Active';
+                badge.parentElement.className = 'text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5';
+            } else {
+                badge.textContent = 'Mock Mode';
+                badge.parentElement.className = 'text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1.5';
+            }
+        }
+
+        function showStatusMessage(msg, type) {
+            const elem = document.getElementById('apiStatusMessage');
+            elem.textContent = msg;
+            elem.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-blue-100', 'text-blue-800');
+            if (type === 'success') {
+                elem.classList.add('bg-emerald-100', 'text-emerald-800', 'dark:bg-emerald-950', 'dark:text-emerald-300');
+            } else {
+                elem.classList.add('bg-blue-100', 'text-blue-800', 'dark:bg-blue-950', 'dark:text-blue-300');
+            }
+            setTimeout(() => elem.classList.add('hidden'), 3500);
+        }
+
+        // --- Textarea Handlers ---
+        function setupTextareaCounters() {
+            const input = document.getElementById('notesInput');
+            const charCount = document.getElementById('charCount');
+            const wordCount = document.getElementById('wordCount');
+
+            input.addEventListener('input', () => {
+                const text = input.value;
+                charCount.textContent = text.length;
+                const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+                wordCount.textContent = words;
+            });
+        }
+
+        function loadSampleNotes() {
+            const input = document.getElementById('notesInput');
+            input.value = sampleNotesText;
+            input.dispatchEvent(new Event('input'));
+            showToast('Sample notes loaded!');
+        }
+
+        // --- Main Processing Flow ---
+        async function processNotes() {
+            const notes = document.getElementById('notesInput').value.trim();
+            if (!notes) {
+                showToast('Please enter or paste study notes first!', 'warning');
+                return;
+            }
+
+            const apiKey = localStorage.getItem('gemini_api_key') || '';
+
+            // UI Adjustments
+            document.getElementById('outputSection').classList.add('hidden');
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('generateBtn').disabled = true;
+
+            try {
+                let resultData;
+                if (apiKey) {
+                    document.getElementById('loadingSubtext').textContent = "Connecting to Google Gemini API for custom AI synthesis...";
+                    resultData = await fetchGeminiSummaryAndQuiz(notes, apiKey);
+                } else {
+                    document.getElementById('loadingSubtext').textContent = "Simulating intelligent summarization & question creation...";
+                    await new Promise(r => setTimeout(r, 1200)); // Smooth loading feel
+                    resultData = generateMockSummaryAndQuiz(notes);
+                }
+
+                renderSummary(resultData.summary);
+                renderQuiz(resultData.quiz);
+                
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('outputSection').classList.remove('hidden');
+                
+                // Smooth scroll to output
+                document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+                showToast(apiKey ? 'Generated with Gemini AI!' : 'Generated using Mock Mode');
+            } catch (err) {
+                console.error(err);
+                showToast('Failed to generate output. Falling back to mock data.', 'error');
+                const fallbackData = generateMockSummaryAndQuiz(notes);
+                renderSummary(fallbackData.summary);
+                renderQuiz(fallbackData.quiz);
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('outputSection').classList.remove('hidden');
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+            }
+        }
+
+        // --- Gemini API Call ---
+        async function fetchGeminiSummaryAndQuiz(notes, apiKey) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const systemInstruction = `You are an expert AI study assistant. Analyze student notes and provide a JSON response containing a structured summary and 4 multiple choice quiz questions.
+Return EXACT JSON in this format:
+{
+  "summary": [
+    { "title": "Core Concept", "details": ["Point 1", "Point 2"] },
+    { "title": "Key Mechanisms / Details", "details": ["Point 1", "Point 2"] },
+    { "title": "Significance / Takeaways", "details": ["Point 1", "Point 2"] }
+  ],
+  "quiz": [
+    {
+      "id": 1,
+      "question": "Question text?",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 0,
+      "explanation": "Brief explanation why this is correct."
+    }
+  ]
+}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: `Study Notes:\n\n${notes}` }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                generationConfig: {
+                    responseMimeType: "application/json"
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            return JSON.parse(jsonText);
+        }
+
+        // --- Intelligent Mock Generator ---
+        function generateMockSummaryAndQuiz(notes) {
+            const lines = notes.split('\n').filter(l => l.trim().length > 0);
+            const firstLine = lines[0] || "General Overview";
+
+            return {
+                summary: [
+                    {
+                        title: "Overview & Definition",
+                        details: [
+                            lines[0] || "The provided text presents key foundational information for study.",
+                            `Focuses on core subject matter regarding ${firstLine.substring(0, 40)}...`
+                        ]
+                    },
+                    {
+                        title: "Key Structures & Functions",
+                        details: [
+                            lines[1] || "Defines essential components and operational mechanisms involved.",
+                            lines[2] || "Highlights critical inputs, outputs, or processes essential to the domain."
+                        ]
+                    },
+                    {
+                        title: "Essential Takeaways",
+                        details: [
+                            "Understanding these principles is key for exams and practical application.",
+                            "Review main terminology and primary equations or sequences regularly."
+                        ]
+                    }
+                ],
+                quiz: [
+                    {
+                        id: 1,
+                        question: "What is the primary topic or phenomenon discussed in the study notes?",
+                        options: [
+                            firstLine.substring(0, 45),
+                            "An unrelated abstract theoretical concept",
+                            "Historical context of modern physics",
+                            "General industrial chemical manufacturing"
+                        ],
+                        correctIndex: 0,
+                        explanation: "The introduction explicitly establishes this as the central theme of the notes."
+                    },
+                    {
+                        id: 2,
+                        question: "Which of the following best describes the primary mechanism in the text?",
+                        options: [
+                            "A static system requiring no energy input",
+                            "A structured sequence of dependent and independent reactions or processes",
+                            "A purely random chemical breakdown",
+                            "An unverified hypothesis with no clear steps"
+                        ],
+                        correctIndex: 1,
+                        explanation: "The notes detail distinct stages working together to produce key outcomes."
+                    },
+                    {
+                        id: 3,
+                        question: "Why are the factors mentioned in the notes critical for study?",
+                        options: [
+                            "They determine the rate and efficiency of the primary process",
+                            "They are strictly optional with no measurable impact",
+                            "They only apply under artificial laboratory conditions",
+                            "They replace the need for energy sources entirely"
+                        ],
+                        correctIndex: 0,
+                        explanation: "System variables directly influence overall productivity and rate."
+                    },
+                    {
+                        id: 4,
+                        question: "What is recommended for mastering this topic effectively?",
+                        options: [
+                            "Ignoring the core terminology and equations",
+                            "Memorizing only the concluding sentence",
+                            "Reviewing structured key points, mechanisms, and self-testing with quizzes",
+                            "Skipping foundational definitions"
+                        ],
+                        correctIndex: 2,
+                        explanation: "Active recall and structured summary reviews maximize long-term retention."
+                    }
+                ]
+            };
+        }
+
+        // --- Render Functions ---
+        function renderSummary(summaryData) {
+            const container = document.getElementById('summaryContent');
+            container.innerHTML = '';
+
+            summaryData.forEach((section, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 dark:bg-slate-900/60 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/60";
+                
+                let detailsListHTML = section.details.map(detail => `
+                    <li class="flex items-start gap-2.5 my-1.5">
+                        <i class="fa-solid fa-check text-indigo-500 text-xs mt-1.5 flex-shrink-0"></i>
+                        <span>${detail}</span>
+                    </li>
+                `).join('');
+
+                card.innerHTML = `
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base mb-2 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 text-xs flex items-center justify-center font-bold">${idx + 1}</span>
+                        ${section.title}
+                    </h3>
+                    <ul class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                        ${detailsListHTML}
+                    </ul>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderQuiz(quizData) {
+            currentQuizData = quizData;
+            userSelectedAnswers = {};
+            
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+
+            document.getElementById('totalQuestionsCount').textContent = quizData.length;
+            document.getElementById('answersSubmittedCount').textContent = '0';
+            document.getElementById('scoreBadge').classList.add('hidden');
+
+            quizData.forEach((q, qIndex) => {
+                const qBox = document.createElement('div');
+                qBox.className = "bg-slate-50 dark:bg-slate-900/60 p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 transition-all";
+                qBox.id = `questionBox-${qIndex}`;
+
+                let optionsHTML = q.options.map((option, optIndex) => `
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 cursor-pointer transition-all text-xs sm:text-sm group">
+                        <input type="radio" name="question-${qIndex}" value="${optIndex}" onchange="selectOption(${qIndex}, ${optIndex})" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                        <span class="text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">${option}</span>
+                    </label>
+                `).join('');
+
+                qBox.innerHTML = `
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <h4 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-start gap-2">
+                            <span class="text-indigo-600 dark:text-indigo-400 font-bold">Q${qIndex + 1}.</span>
+                            <span>${q.question}</span>
+                        </h4>
+                    </div>
+
+                    <div class="space-y-2 mt-3">
+                        ${optionsHTML}
+                    </div>
+
+                    <div id="explanation-${qIndex}" class="hidden mt-4 p-3.5 rounded-xl text-xs sm:text-sm border transition-all"></div>
+                `;
+                container.appendChild(qBox);
+            });
+        }
+
+        // --- Interactive Quiz Logic ---
+        function selectOption(questionIndex, optionIndex) {
+            userSelectedAnswers[questionIndex] = optionIndex;
+            document.getElementById('answersSubmittedCount').textContent = Object.keys(userSelectedAnswers).length;
+        }
+
+        function gradeQuiz() {
+            if (Object.keys(userSelectedAnswers).length < currentQuizData.length) {
+                showToast(`Please answer all ${currentQuizData.length} questions before submitting!`, 'warning');
+                return;
+            }
+
+            let score = 0;
+
+            currentQuizData.forEach((q, qIndex) => {
+                const selected = userSelectedAnswers[qIndex];
+                const isCorrect = selected === q.correctIndex;
+                if (isCorrect) score++;
+
+                const expBox = document.getElementById(`explanation-${qIndex}`);
+                expBox.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+
+                if (isCorrect) {
+                    expBox.classList.add('bg-emerald-50', 'dark:bg-emerald-950/60', 'text-emerald-900', 'dark:text-emerald-200', 'border-emerald-200', 'dark:border-emerald-800');
+                    expBox.innerHTML = `
+                        <div class="font-bold flex items-center gap-1.5 mb-1 text-emerald-700 dark:text-emerald-400">
+                            <i class="fa-solid fa-circle-check"></i> Correct!
+                        </div>
+                        <p>${q.explanation}</p>
+                    `;
+                } else {
+                    expBox.classList.add('bg-rose-50', 'dark:bg-rose-950/60', 'text-rose-900', 'dark:text-rose-200', 'border-rose-200', 'dark:border-rose-800');
+                    expBox.innerHTML = `
+                        <div class="font-bold flex items-center gap-1.5 mb-1 text-rose-700 dark:text-rose-400">
+                            <i class="fa-solid fa-circle-xmark"></i> Incorrect (Correct Answer: ${q.options[q.correctIndex]})
+                        </div>
+                        <p>${q.explanation}</p>
+                    `;
+                }
+            });
+
+            // Update Score Badge
+            const scoreBadge = document.getElementById('scoreBadge');
+            const scoreText = document.getElementById('scoreText');
+            scoreText.textContent = `${score} / ${currentQuizData.length}`;
+            scoreBadge.classList.remove('hidden');
+
+            showToast(`Quiz Completed! You scored ${score}/${currentQuizData.length}`);
+        }
+
+        function resetQuiz() {
+            renderQuiz(currentQuizData);
+            showToast('Quiz reset');
+        }
+
+        // --- Utilities & Copy ---
+        function copySummaryText() {
+            const summaryContainer = document.getElementById('summaryContent');
+            if (!summaryContainer || !summaryContainer.innerText) return;
+
+            const textToCopy = summaryContainer.innerText;
+
+            // Fallback execCommand for iframe compatibility
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                const btn = document.getElementById('copySummaryBtn');
+                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i><span>Copied!</span>`;
+                setTimeout(() => {
+                    btn.innerHTML = `<i class="fa-regular fa-copy"></i><span>Copy Summary</span>`;
+                }, 2000);
+                showToast('Summary copied to clipboard!');
+            } catch (err) {
+                showToast('Failed to copy text', 'error');
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = msg;
+
+            if (type === 'warning') {
+                toastIcon.className = 'fa-solid fa-triangle-exclamation text-amber-400';
+            } else if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-rose-400';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
