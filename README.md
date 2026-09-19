@@ -7,7 +7,7 @@ An AI-powered, single-page web application designed for students to instantly pa
 ## 🌟 Key Features
 
 - **⚡ Instant AI Summarization:** Converts complex notes and long text into clear, digestible bullet points using Google Gemini AI.
-- **🎯 Dynamic Quiz Generation:** Automatically creates multiple-choice practice questions with instant grading and clear explanations to reinforce learning.
+- **🎯 Dynamic Quiz Generation:** Automatically creates 4 multiple-choice practice questions with instant grading and clear explanations to reinforce learning.
 - **💡 Smart Mock Fallback:** Operates seamlessly with intelligent fallback content even without an API key, ensuring zero downtime during testing.
 - **🎨 Modern UI/UX:** Clean, distraction-free interface built with Tailwind CSS, featuring a fully integrated Dark/Light mode toggle.
 - **🔑 Client-Side Privacy:** Your Gemini API Key is stored safely in your browser's `localStorage` and is never sent to external servers.
